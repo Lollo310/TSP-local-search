@@ -26,7 +26,7 @@ class Loader:
         except FileNotFoundError:
             print("Error: The specified file was not found.")
             
-    def createNxGraph(self) -> nx.Graph:
+    def createNxGraph(self) -> nx.graph:
         try:
             if self.nodes is None:
                 raise ValueError
