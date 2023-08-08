@@ -1,28 +1,29 @@
 import math
 import numpy as np
 import networkx as nx
+import matplotlib.pyplot as plt
 
 class Loader:
     
     def __init__(self):
         self.nodes = None
-        self.nxGraph = None
-        
+        self.nxGraph = None    
         
     def readFile(self, filepath: str):
         try:
-            f = open(filepath, 'r')
-            nodes = []
-            for line in f.readlines():
-                splitted = line.strip().split()
-                label = splitted[0]
+            with open(filepath, 'r') as f:
+                nodes = []
                 
-                if label.isdigit():
-                    node = (float(splitted[1]), float(splitted[2]))
-                    nodes.append(node)
+                for line in f.readlines():
+                    splitted = line.strip().split()
+                    label = splitted[0]
                     
-            self.nodes = np.array(nodes)
-            f.close()
+                    if label.isdigit():
+                        node = (float(splitted[1]), float(splitted[2]))
+                        nodes.append(node)
+                        
+                self.nodes = np.array(nodes)
+            
         except FileNotFoundError:
             print("Error: The specified file was not found.")
             
@@ -63,5 +64,13 @@ class Loader:
             return distances
         except ValueError:
             print('Error: Attribute nodes not be None. Read file before.')
-        
             
+class Utilities:
+    
+    def __init__(self) -> None:
+        pass
+        
+    def draw(self, G: nx.graph): 
+        _, ax = plt.subplots(figsize=(10,7))
+        nx.draw(G, nx.get_node_attributes(G, 'pos'), ax, node_size=40)
+        
