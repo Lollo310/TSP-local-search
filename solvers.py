@@ -31,7 +31,7 @@ class TSP:
             visited_nodes.add(last_node)
             node = last_node
         
-        self.hamiltonian_cycle.append((0, node))
+        self.hamiltonian_cycle.append((node, 0))
         
     def toNetworkX(self, G: nx.graph) -> nx.graph:
         try:
@@ -46,7 +46,7 @@ class TSP:
         except ValueError:
             print('Error: Attribute hamiltonian_cycle not be None. Read file before.')
             
-    def twoOpt(self, G):
+    def twoOpt(self, G: nx.graph) -> float:
         """
         non posso farlo con gli indici. devo ciclare in qualche modo sugli archi del ciclo 
         hamiltoniano e invertire il path. cambiando il nodo destinazione dell'arco i e del 
@@ -59,8 +59,42 @@ class TSP:
         while not locally_optimal:
             locally_optimal = True
             
-            for i in nx.number_of_nodes(G) - 2:
+            for i in range(nx.number_of_nodes(G) - 2):
                 
                 for j in range(i+2, nx.number_of_nodes(G) - 1 if i == 0 else nx.number_of_nodes(G)):
-            
-          
+                   gain = self.gain(G,i,j)
+                   
+                   if gain < 0:
+                       self.swap(i,j)
+                       locally_optimal = False
+        end_time = time.time()
+        
+        return end_time - start_time
+    
+    def gain(self, G: nx.graph, i: int, j: int) -> float:
+        weights = nx.get_edge_attributes(G,'wieght')
+        
+        a, b = self.hamiltonian_cycle[i]
+        c, d = self.hamiltonian_cycle[j]
+        
+        x = min(a, b)
+        y = max(a, b)
+        weight_ab = weights[(x,y)]
+        
+        x = min(c, d)
+        y = max(c, d)
+        weight_cd = weights[(x,y)]
+        
+        x = min(a, c)
+        y = max(a, c)
+        weight_ac = weights[(x,y)]
+        
+        x = min(b, d)
+        y = max(b, d)
+        weight_bd = weights[(x,y)]
+        
+        return (weight_ac + weight_bd) - (weight_ab + weight_cd)
+    
+    def swap(self, i, j):
+        pass
+        
