@@ -7,7 +7,7 @@ class TSP:
         self.hamiltonian_cycle = None
         self.hamiltonian_cost = 0
         
-    def NN(self, G: nx.graph):
+    def NN(self, G: nx.Graph):
         weights = nx.get_edge_attributes(G, 'weight')
         visited_nodes = {0}
         self.hamiltonian_cycle = []
@@ -33,7 +33,7 @@ class TSP:
         
         self.hamiltonian_cycle.append((node, 0))
         
-    def toNetworkX(self, G: nx.graph) -> nx.graph:
+    def toNetworkX(self, G: nx.Graph) -> nx.Graph:
         try:
             if self.hamiltonian_cycle is None:
                 raise ValueError
@@ -46,13 +46,7 @@ class TSP:
         except ValueError:
             print('Error: Attribute hamiltonian_cycle not be None. Read file before.')
             
-    def twoOpt(self, G: nx.graph) -> float:
-        """
-        non posso farlo con gli indici. devo ciclare in qualche modo sugli archi del ciclo 
-        hamiltoniano e invertire il path. cambiando il nodo destinazione dell'arco i e del 
-        nodo sorgente dell'arco j, stessa cosa per i+1 e j+1.
-        """
-        weights = nx.get_edge_attributes(G,'wieght')
+    def twoOpt(self, G: nx.Graph) -> float:
         locally_optimal = False
         start_time = time.time()
         
@@ -60,41 +54,54 @@ class TSP:
             locally_optimal = True
             
             for i in range(nx.number_of_nodes(G) - 2):
+                if not locally_optimal: break
                 
                 for j in range(i+2, nx.number_of_nodes(G) - 1 if i == 0 else nx.number_of_nodes(G)):
                    gain = self.gain(G,i,j)
                    
                    if gain < 0:
-                       self.swap(i,j)
+                       print(i,j,gain)
+                       self.swap(i,j,gain)
                        locally_optimal = False
+                       break
         end_time = time.time()
         
         return end_time - start_time
     
-    def gain(self, G: nx.graph, i: int, j: int) -> float:
-        weights = nx.get_edge_attributes(G,'wieght')
+    def gain(self, G: nx.Graph, i: int, j: int) -> float:
+        weights = nx.get_edge_attributes(G,'weight') # si può usare un dizionario una volta e basta al posto di n volte 
         
         a, b = self.hamiltonian_cycle[i]
         c, d = self.hamiltonian_cycle[j]
         
-        x = min(a, b)
-        y = max(a, b)
+        x = min(a,b)
+        y = max(a,b)
         weight_ab = weights[(x,y)]
         
-        x = min(c, d)
-        y = max(c, d)
+        x = min(c,d)
+        y = max(c,d)
         weight_cd = weights[(x,y)]
         
-        x = min(a, c)
-        y = max(a, c)
+        x = min(a,c)
+        y = max(a,c)
         weight_ac = weights[(x,y)]
         
-        x = min(b, d)
-        y = max(b, d)
+        x = min(b,d)
+        y = max(b,d)
         weight_bd = weights[(x,y)]
         
         return (weight_ac + weight_bd) - (weight_ab + weight_cd)
     
-    def swap(self, i, j):
-        pass
+    def swap(self, i: int, j: int, gain: float):
+        self.hamiltonian_cost += gain
+        
+        a, b = self.hamiltonian_cycle[i]
+        c, d = self.hamiltonian_cycle[j]
+        
+        self.hamiltonian_cycle[i] = (a,c)
+        self.hamiltonian_cycle[j] = (b,d)
+        self.hamiltonian_cycle[i+1:j] = reversed(self.hamiltonian_cycle[i+1:j])
+        
+        for k in range(i+1,j):
+            self.hamiltonian_cycle[k] = self.hamiltonian_cycle[k][::-1]
         
