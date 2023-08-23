@@ -52,6 +52,7 @@ class TSP:
         
         while not locally_optimal:
             locally_optimal = True
+            print(locally_optimal)
             
             for i in range(nx.number_of_nodes(G) - 2):
                 if not locally_optimal: break
@@ -60,7 +61,7 @@ class TSP:
                    gain = self.gain(G,i,j)
                    
                    if gain < 0:
-                       print(i,j,gain)
+                       print(self.hamiltonian_cycle[i],self.hamiltonian_cycle[j],gain)
                        self.swap(i,j,gain)
                        locally_optimal = False
                        break
