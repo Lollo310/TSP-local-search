@@ -27,5 +27,5 @@ def process_txt_file(dir):
 
 
 if __name__ == "__main__":
-    input_directory = "./TSP_datasets/"  # Sostituisci con il percorso della tua directory
+    input_directory = "./TSP_datasets/" 
     process_txt_file(input_directory)

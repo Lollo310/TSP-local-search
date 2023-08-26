@@ -106,14 +106,14 @@ class TSP:
             G (nx.Graph): The input graph.
 
         Raises:
-            ValueError: If the hamiltonian_cycle attribute is None.
+            TypeError: If the hamiltonian_cycle attribute is None.
 
         Returns:
             nx.Graph: The NetworkX graph representing the Hamiltonian cycle.
         """
         try:
             if self.hamiltonian_cycle is None:
-                raise ValueError
+                raise TypeError
 
             H = nx.Graph(self.hamiltonian_cycle)
             nx.set_node_attributes(H, nx.get_node_attributes(G, 'pos'), 'pos')
@@ -121,8 +121,8 @@ class TSP:
                 H, nx.get_edge_attributes(G, 'weight'), 'weight')
 
             return H
-        except ValueError:
-            print('Error: Attribute hamiltonian_cycle not be None. Read file before.')
+        except TypeError:
+            print('Error: Attribute hamiltonian_cycle can not be None.')
 
     def updateHamiltonianCost(self, G: nx.Graph) -> None:
         """Update the cost of the Hamiltonian cycle.
@@ -130,35 +130,68 @@ class TSP:
         Args:
             G (nx.Graph): The input graph.
         """
+        # Convert Hamiltonian cycle representation to NetworkX graph
         H = self.toNetworkX(G)
-        weights = nx.get_edge_attributes(H, 'weight')
+        weights = nx.get_edge_attributes(H, 'weight')  # Get edge weights
+        
+        # Update the Hamiltonian cycle cost
         self.hamiltonian_cost = sum(list(weights.values()))
 
     def twoOpt(self, G: nx.Graph) -> float:
-        locally_optimal = False
-        start_time = time.time()
-        weights = nx.get_edge_attributes(G, 'weight')
+        """Apply the 2-opt heuristic to improve the Hamiltonian cycle.
 
-        while not locally_optimal:
-            locally_optimal = True
+        Args:
+            G (nx.Graph): The input graph.
 
-            for i in range(nx.number_of_nodes(G) - 2):
-                if not locally_optimal:
-                    break
+        Raises:
+            TypeError: If the hamiltonian_cycle attribute is None.
 
-                for j in range(i+2, nx.number_of_nodes(G) - 1 if i == 0 else nx.number_of_nodes(G)):
-                    gain = self.gain(i, j, weights)
+        Returns:
+            float: The time taken to complete the 2-opt heuristic.
+        """
+        try:
+            if self.hamiltonian_cycle is None:
+                raise TypeError
 
-                    if gain < 0:
-                        self.swap(i, j)
-                        locally_optimal = False
+            locally_optimal = False  # Flag to track if a local optimum is reached
+            start_time = time.time()
+            weights = nx.get_edge_attributes(G, 'weight')
+
+            while not locally_optimal:
+                locally_optimal = True
+
+                for i in range(nx.number_of_nodes(G) - 2):
+                    if not locally_optimal:
                         break
-        end_time = time.time()
-        self.updateHamiltonianCost(G)
 
-        return end_time - start_time
+                    for j in range(i+2, nx.number_of_nodes(G) - 1 if i == 0 else nx.number_of_nodes(G)):
+                        gain = self.gain(i, j, weights)
+
+                        if gain < 0:
+                            # Perform the swap to improve the cycle
+                            self.swap(i, j)
+                            locally_optimal = False
+                            break
+            end_time = time.time()
+            
+            # Update the cost of the Hamiltonian cycle
+            self.updateHamiltonianCost(G)
+
+            return end_time - start_time  # Return the time taken for the 2-opt heuristic
+        except TypeError:
+            print('Error: Attribute hamiltonian_cycle can not be None.')
 
     def gain(self, i: int, j: int, weights: dict) -> float:
+        """Calculate the gain achieved by swapping edges i and j in the Hamiltonian cycle.
+
+        Args:
+            i (int): Index of the first edge.
+            j (int): Index of the second edge.
+            weights (dict): Dictionary of edge weights.
+
+        Returns:
+            float: The calculated gain.
+        """
         a, b = self.hamiltonian_cycle[i]
         c, d = self.hamiltonian_cycle[j]
 
@@ -181,6 +214,12 @@ class TSP:
         return (weight_ac + weight_bd) - (weight_ab + weight_cd)
 
     def swap(self, i: int, j: int) -> None:
+        """Perform a 2-opt swap of edges i and j in the Hamiltonian cycle.
+
+        Args:
+            i (int): Index of the first edge.
+            j (int): Index of the second edge.
+        """
         a, b = self.hamiltonian_cycle[i]
         c, d = self.hamiltonian_cycle[j]
 
@@ -192,49 +231,82 @@ class TSP:
             self.hamiltonian_cycle[k] = self.hamiltonian_cycle[k][::-1]
 
     def threeOpt(self, G: nx.Graph) -> float:
-        locally_optimal = False
-        weights = nx.get_edge_attributes(G, 'weight')
-        start_time = time.time()
+        """Apply the 3-opt heuristic to improve the Hamiltonian cycle.
 
-        while not locally_optimal:
-            locally_optimal = True
+        Args:
+            G (nx.Graph): The input graph.
 
-            for i in range(nx.number_of_nodes(G) - 4):
-                if not locally_optimal:
-                    break
+        Raises:
+            TypeError: If the hamiltonian_cycle attribute is None.
 
-                for j in range(i+2, nx.number_of_nodes(G) - 2):
+        Returns:
+            float: The time taken to complete the 3-opt heuristic.
+        """
+        try:
+            if self.hamiltonian_cycle is None:
+                raise TypeError
+
+            locally_optimal = False  # Flag to track if a local optimum is reached
+            weights = nx.get_edge_attributes(G, 'weight')
+            start_time = time.time()
+
+            while not locally_optimal:
+                locally_optimal = True
+
+                for i in range(nx.number_of_nodes(G) - 4):
                     if not locally_optimal:
                         break
 
-                    for k in range(j+2, nx.number_of_nodes(G) - 1 if i == 0 else nx.number_of_nodes(G)):
-                        case, gain = self.gainThreeOpt(i, j, k, weights)
-
-                        if gain < 0:
-                            self.swapThreeOpt(i, j, k, case, gain)
-                            locally_optimal = False
+                    for j in range(i+2, nx.number_of_nodes(G) - 2):
+                        if not locally_optimal:
                             break
 
-        end_time = time.time()
-        self.updateHamiltonianCost(G)
+                        for k in range(j+2, nx.number_of_nodes(G) - 1 if i == 0 else nx.number_of_nodes(G)):
+                            case, gain = self.gainThreeOpt(i, j, k, weights)
 
-        return end_time - start_time
+                            if gain < 0:
+                                self.swapThreeOpt(i, j, k, case)
+                                locally_optimal = False
+                                break
+
+            end_time = time.time()
+            
+            # Update the cost of the Hamiltonian cycle
+            self.updateHamiltonianCost(G)
+
+            return end_time - start_time  # Return the time taken for the 3-opt heuristic
+        except TypeError:
+            print('Error: Attribute hamiltonian_cycle can not be None.')
 
     def gainThreeOpt(self, i: int, j: int, k: int, weights: dict) -> Tuple[int, float]:
+        """Calculate the gain and case achieved by applying the 3-opt swaps in the Hamiltonian cycle.
+
+        Args:
+            i (int): Index of the first edge.
+            j (int): Index of the second edge.
+            k (int): Index of the third edge.
+            weights (dict): Dictionary of edge weights.
+
+        Returns:
+            Tuple[int, float]: A tuple containing the index of the best case and the corresponding gain.
+        """
         a, b = self.hamiltonian_cycle[i]
         c, d = self.hamiltonian_cycle[j]
         e, f = self.hamiltonian_cycle[k]
 
         dist = np.zeros(8)
 
+        # no exchange
         dist[0] = weights[(min(a, b), max(
             a, b))] + weights[(min(c, d), max(c, d))] + weights[(min(e, f), max(e, f))]
+        # 2-opt exchange
         dist[1] = weights[(min(a, c), max(
             a, c))] + weights[(min(b, d), max(b, d))] + weights[(min(e, f), max(e, f))]
         dist[2] = weights[(min(a, e), max(
             a, e))] + weights[(min(c, d), max(c, d))] + weights[(min(b, f), max(b, f))]
         dist[3] = weights[(min(a, b), max(
             a, b))] + weights[(min(c, e), max(c, e))] + weights[(min(d, f), max(d, f))]
+        # 3-opt exchange
         dist[4] = weights[(min(a, c), max(
             a, c))] + weights[(min(b, e), max(b, e))] + weights[(min(d, f), max(d, f))]
         dist[5] = weights[(min(a, e), max(
@@ -249,23 +321,33 @@ class TSP:
 
         return np.argmin(gains), np.min(gains)
 
-    def swapThreeOpt(self, i: int, j: int, k: int, case: int, gain: float) -> None:
+    def swapThreeOpt(self, i: int, j: int, k: int, case: int) -> None:
+        """Apply the corresponding 3-opt swaps based on the selected case.
+
+        Args:
+            i (int): Index of the first edge.
+            j (int): Index of the second edge.
+            k (int): Index of the third edge.
+            case (int): Index of the selected case.
+        """
+        # 2-opt exchange
         if case == 1:
-            self.swap(i+1, j)
+            self.swap(i, j)
         elif case == 2:
-            self.swap(i+1, k)
+            self.swap(i, k)
         elif case == 3:
-            self.swap(j+1, k)
+            self.swap(j, k)
+        # 3-opt exchange
         elif case == 4:
-            self.swap(i+1, j)
-            self.swap(j+1, k)
+            self.swap(i, j)
+            self.swap(j, k)
         elif case == 5:
-            self.swap(i+1, j)
-            self.swap(i+1, k)
+            self.swap(i, j)
+            self.swap(i, k)
         elif case == 6:
-            self.swap(j+1, k)
-            self.swap(i+1, k)
+            self.swap(j, k)
+            self.swap(i, k)
         elif case == 7:
-            self.swap(i+1, j)
-            self.swap(j+1, k)
-            self.swap(i+1, k)
+            self.swap(i, j)
+            self.swap(j, k)
+            self.swap(i, k)
