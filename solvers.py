@@ -137,32 +137,41 @@ class TSP:
         # Update the Hamiltonian cycle cost
         self.hamiltonian_cost = sum(list(weights.values()))
 
-    def twoOpt(self, G: nx.Graph) -> float:
-        """Apply the 2-opt heuristic to improve the Hamiltonian cycle.
+    def twoOpt(self, G: nx.Graph, dlb=False) -> float:
+        """This function applies the 2-opt heuristic to improve a Hamiltonian cycle in a graph.
 
         Args:
             G (nx.Graph): The input graph.
+            dlb (bool, optional): Whether to use the Don't Look Bit (DLB). Defaults to False.
 
         Raises:
-            TypeError: If the hamiltonian_cycle attribute is None.
+            TypeError: If the attribute hamiltonian_cycle is None.
 
         Returns:
-            float: The time taken to complete the 2-opt heuristic.
+            float: The time taken for the 2-opt heuristic to run.
         """
         try:
             if self.hamiltonian_cycle is None:
                 raise TypeError
 
             locally_optimal = False  # Flag to track if a local optimum is reached
-            start_time = time.time()
             weights = nx.get_edge_attributes(G, 'weight')
-
+            start_time = time.time()
+            
+            if dlb: 
+                dlb_list = [False] * nx.number_of_nodes(G)
+            
             while not locally_optimal:
                 locally_optimal = True
 
                 for i in range(nx.number_of_nodes(G) - 2):
                     if not locally_optimal:
                         break
+                    
+                    if dlb:
+                        a, b = self.hamiltonian_cycle[i]
+                        if dlb_list[a]: continue
+                        node_improved = False
 
                     for j in range(i+2, nx.number_of_nodes(G) - 1 if i == 0 else nx.number_of_nodes(G)):
                         gain = self.gain(i, j, weights)
@@ -171,7 +180,13 @@ class TSP:
                             # Perform the swap to improve the cycle
                             self.swap(i, j)
                             locally_optimal = False
+                            if dlb:
+                                c, d = self.hamiltonian_cycle[j]
+                                dlb_list = self.setDLB(dlb_list, [a,b,c,d])
+                                node_improved = True
                             break
+                    
+                    if dlb and not node_improved: dlb_list[a] = True
             end_time = time.time()
             
             # Update the cost of the Hamiltonian cycle
@@ -229,12 +244,28 @@ class TSP:
 
         for k in range(i+1, j):
             self.hamiltonian_cycle[k] = self.hamiltonian_cycle[k][::-1]
+            
+    def setDLB(self, dlb_list: list, node_list: list) -> list:
+        """Reset the Don't Look Bit (DLB) flags for the nodes in the given list.
 
-    def threeOpt(self, G: nx.Graph) -> float:
+        Args:
+            dlb_list (list): List of DLB flags for nodes.
+            node_list (list): List of nodes to reset DLB flags for.
+
+        Returns:
+            list: Updated DLB flags list after resetting the specified nodes.
+        """
+        for node in node_list:
+            dlb_list[node] = False
+            
+        return dlb_list
+
+    def threeOpt(self, G: nx.Graph, dlb=False) -> float:
         """Apply the 3-opt heuristic to improve the Hamiltonian cycle.
 
         Args:
             G (nx.Graph): The input graph.
+            dlb (bool, optional): Whether to use the Don't Look Bit (DLB). Defaults to False.
 
         Raises:
             TypeError: If the hamiltonian_cycle attribute is None.
@@ -249,6 +280,9 @@ class TSP:
             locally_optimal = False  # Flag to track if a local optimum is reached
             weights = nx.get_edge_attributes(G, 'weight')
             start_time = time.time()
+            
+            if dlb:
+                dlb_list = [False] * nx.number_of_nodes(G)
 
             while not locally_optimal:
                 locally_optimal = True
@@ -256,6 +290,11 @@ class TSP:
                 for i in range(nx.number_of_nodes(G) - 4):
                     if not locally_optimal:
                         break
+                    
+                    if dlb:
+                        a, b = self.hamiltonian_cycle[i]
+                        if dlb_list[a]: continue
+                        node_improved = False
 
                     for j in range(i+2, nx.number_of_nodes(G) - 2):
                         if not locally_optimal:
@@ -267,8 +306,15 @@ class TSP:
                             if gain < 0:
                                 self.swapThreeOpt(i, j, k, case)
                                 locally_optimal = False
+                                
+                                if dlb:
+                                    c, d = self.hamiltonian_cycle[j]
+                                    e, f = self.hamiltonian_cycle[k]
+                                    dlb_list = self.setDLB(dlb_list, [a,b,c,d,e,f])
+                                    node_improved = True
+                                    
                                 break
-
+                    if dlb and not node_improved: dlb_list[a] = True
             end_time = time.time()
             
             # Update the cost of the Hamiltonian cycle
