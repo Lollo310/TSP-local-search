@@ -1,4 +1,5 @@
 import math
+import os
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -118,3 +119,12 @@ class Utilities:
         """
         _, ax = plt.subplots(figsize=(10, 7))
         nx.draw(G, nx.get_node_attributes(G, 'pos'), ax, node_size=40)
+        
+    def getTspFiles(directory):
+        tsp_files = []
+        
+        for filename in os.listdir(directory):
+            if filename.endswith('.tsp'):
+                tsp_files.append(filename)
+                
+        return tsp_files
