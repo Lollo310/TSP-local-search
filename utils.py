@@ -120,7 +120,7 @@ class Utilities:
         _, ax = plt.subplots(figsize=(10, 7))
         nx.draw(G, nx.get_node_attributes(G, 'pos'), ax, node_size=40)
         
-    def getTspFiles(directory: str) -> list:
+    def getTspFiles(self, directory: str) -> list:
         """Get a list of .tsp files in the specified directory.
         
         Args:
