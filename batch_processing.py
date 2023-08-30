@@ -46,13 +46,13 @@ def getResults(G: nx.Graph, i: int, file: str, results: dict) -> dict:
     # Perform repNN + 2Opt + DLB algorithm
     results['repNN2OptDLB_time'][i] = tsp.NN2Opt(G, True, True)
     results['repNN2OptDLB_cost'][i] = tsp.hamiltonian_cost
-    # Perform repNN + 3Opt algorithm
+    """ # Perform repNN + 3Opt algorithm
     results['repNN3Opt_time'][i] = tsp.NN3Opt(G, True)
-    results['repNN3Opt_cost'][i] = tsp.hamiltonian_cost
+    results['repNN3Opt_cost'][i] = tsp.hamiltonian_cost """
     # Perform repNN + 3Opt + DLB algorithm
     results['repNN3OptDLB_time'][i] = tsp.NN3Opt(G, True, True)
     results['repNN3OptDLB_cost'][i] = tsp.hamiltonian_cost
-
+    
     return results
 
 
@@ -70,7 +70,7 @@ def getDf(tsp_file_list):
 
     # Create a dictionary to hold the results
     results = {
-        'name': np.zeros(n, dtype=str),
+        'name': ['']*n,
         'NN_cost': np.zeros(n),
         'NN_time': np.zeros(n),
         'NN2Opt_cost': np.zeros(n),
@@ -105,7 +105,7 @@ def getDf(tsp_file_list):
 if __name__ == '__main__':
     utl = utils.Utilities()  # Initialize utilities instance
 
-    tsp_file_list = utl.getTspFiles('test')  # Get the list of TSP filenames
+    tsp_file_list = utl.getTspFiles('TSP_datasets')  # Get the list of TSP filenames
 
     df = getDf(tsp_file_list)  # Generate DataFrame with results
 

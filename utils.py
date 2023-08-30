@@ -23,7 +23,7 @@ class Loader:
         self.nodes = None
         self.nxGraph = None
 
-    def readFile(self, filepath: str):
+    def readFile(self, filepath: str) -> None:
         """Read and process the node coordinates from a file.
 
         Args:
@@ -74,7 +74,7 @@ class Loader:
         except TypeError:
             print('Error: Attribute nodes can not be None. Read file before.')
 
-    def distEuclidean(self):
+    def distEuclidean(self) -> np.ndarray:
         """Calculate the Euclidean distances between nodes.
 
         Raises:
@@ -111,7 +111,7 @@ class Utilities:
     def __init__(self) -> None:
         pass
 
-    def draw(self, G: nx.graph):
+    def draw(self, G: nx.graph) -> None:
         """Draw a NetworkX graph.
 
         Args:
