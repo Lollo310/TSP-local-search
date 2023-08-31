@@ -1,10 +1,10 @@
 import networkx as nx
 import numpy as np
-import utils
-import solvers as sls
-import matplotlib.pyplot as plt
-import os
 import pandas as pd
+from tqdm import tqdm
+
+import solvers as sls
+import utils
 
 
 def getResults(G: nx.Graph, i: int, file: str, results: dict) -> dict:
@@ -26,14 +26,14 @@ def getResults(G: nx.Graph, i: int, file: str, results: dict) -> dict:
     results['NN_time'][i] = tsp.NN(G)  # Record the execution time
     results['NN_cost'][i] = tsp.hamiltonian_cost  # Record the resulting cost
     # Perform NN + 2Opt algorithm
-    results['NN2Opt_time'][i] = tsp.NN2Opt(G)
-    results['NN2Opt_cost'][i] = tsp.hamiltonian_cost
+    """ results['NN2Opt_time'][i] = tsp.NN2Opt(G)
+    results['NN2Opt_cost'][i] = tsp.hamiltonian_cost """
     # Perform NN + 2Opt + DLB (Don't Look Bit) algorithm
     results['NN2OptDLB_time'][i] = tsp.NN2Opt(G, dlb=True)
     results['NN2OptDLB_cost'][i] = tsp.hamiltonian_cost
     # Perform NN + 3Opt algorithm
-    results['NN3Opt_time'][i] = tsp.NN3Opt(G)
-    results['NN3Opt_cost'][i] = tsp.hamiltonian_cost
+    """  results['NN3Opt_time'][i] = tsp.NN3Opt(G)
+    results['NN3Opt_cost'][i] = tsp.hamiltonian_cost """
     # Perform NN + 3Opt + DLB algorithm
     results['NN3OptDLB_time'][i] = tsp.NN3Opt(G, dlb=True)
     results['NN3OptDLB_cost'][i] = tsp.hamiltonian_cost
@@ -41,18 +41,18 @@ def getResults(G: nx.Graph, i: int, file: str, results: dict) -> dict:
     results['repNN_time'][i] = tsp.repNN(G)
     results['repNN_cost'][i] = tsp.hamiltonian_cost
     # Perform repNN + 2Opt algorithm
-    results['repNN2Opt_time'][i] = tsp.NN2Opt(G, True)
-    results['repNN2Opt_cost'][i] = tsp.hamiltonian_cost
+    """ results['repNN2Opt_time'][i] = tsp.NN2Opt(G, True)
+    results['repNN2Opt_cost'][i] = tsp.hamiltonian_cost """
     # Perform repNN + 2Opt + DLB algorithm
     results['repNN2OptDLB_time'][i] = tsp.NN2Opt(G, True, True)
     results['repNN2OptDLB_cost'][i] = tsp.hamiltonian_cost
-    """ # Perform repNN + 3Opt algorithm
-    results['repNN3Opt_time'][i] = tsp.NN3Opt(G, True)
+    # Perform repNN + 3Opt algorithm
+    """ results['repNN3Opt_time'][i] = tsp.NN3Opt(G, True)
     results['repNN3Opt_cost'][i] = tsp.hamiltonian_cost """
     # Perform repNN + 3Opt + DLB algorithm
     results['repNN3OptDLB_time'][i] = tsp.NN3Opt(G, True, True)
     results['repNN3OptDLB_cost'][i] = tsp.hamiltonian_cost
-    
+
     return results
 
 
@@ -94,7 +94,7 @@ def getDf(tsp_file_list):
     }
 
     # Loop through each TSP instance and compute results
-    for i, file in enumerate(tsp_file_list):
+    for i, file in tqdm(enumerate(tsp_file_list), total=len(tsp_file_list)):
         loader.readFile('TSP_datasets/' + file)  # Load the TSP instance
         G = loader.createNxGraph()  # Create a NetworkX graph from the instance
         results = getResults(G, i, file, results)  # Compute and store results
@@ -105,7 +105,7 @@ def getDf(tsp_file_list):
 if __name__ == '__main__':
     utl = utils.Utilities()  # Initialize utilities instance
 
-    tsp_file_list = utl.getTspFiles('TSP_datasets')  # Get the list of TSP filenames
+    tsp_file_list = utl.getTspFiles('test')  # Get the list of TSP filenames
 
     df = getDf(tsp_file_list)  # Generate DataFrame with results
 
