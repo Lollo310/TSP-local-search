@@ -26,14 +26,14 @@ def getResults(G: nx.Graph, i: int, file: str, results: dict) -> dict:
     results['NN_time'][i] = tsp.NN(G)  # Record the execution time
     results['NN_cost'][i] = tsp.hamiltonian_cost  # Record the resulting cost
     # Perform NN + 2Opt algorithm
-    """ results['NN2Opt_time'][i] = tsp.NN2Opt(G)
-    results['NN2Opt_cost'][i] = tsp.hamiltonian_cost """
+    results['NN2Opt_time'][i] = tsp.NN2Opt(G)
+    results['NN2Opt_cost'][i] = tsp.hamiltonian_cost
     # Perform NN + 2Opt + DLB (Don't Look Bit) algorithm
     results['NN2OptDLB_time'][i] = tsp.NN2Opt(G, dlb=True)
     results['NN2OptDLB_cost'][i] = tsp.hamiltonian_cost
     # Perform NN + 3Opt algorithm
-    """  results['NN3Opt_time'][i] = tsp.NN3Opt(G)
-    results['NN3Opt_cost'][i] = tsp.hamiltonian_cost """
+    results['NN3Opt_time'][i] = tsp.NN3Opt(G)
+    results['NN3Opt_cost'][i] = tsp.hamiltonian_cost
     # Perform NN + 3Opt + DLB algorithm
     results['NN3OptDLB_time'][i] = tsp.NN3Opt(G, dlb=True)
     results['NN3OptDLB_cost'][i] = tsp.hamiltonian_cost
@@ -41,14 +41,14 @@ def getResults(G: nx.Graph, i: int, file: str, results: dict) -> dict:
     results['repNN_time'][i] = tsp.repNN(G)
     results['repNN_cost'][i] = tsp.hamiltonian_cost
     # Perform repNN + 2Opt algorithm
-    """ results['repNN2Opt_time'][i] = tsp.NN2Opt(G, True)
-    results['repNN2Opt_cost'][i] = tsp.hamiltonian_cost """
+    results['repNN2Opt_time'][i] = tsp.NN2Opt(G, True)
+    results['repNN2Opt_cost'][i] = tsp.hamiltonian_cost
     # Perform repNN + 2Opt + DLB algorithm
     results['repNN2OptDLB_time'][i] = tsp.NN2Opt(G, True, True)
     results['repNN2OptDLB_cost'][i] = tsp.hamiltonian_cost
     # Perform repNN + 3Opt algorithm
-    """ results['repNN3Opt_time'][i] = tsp.NN3Opt(G, True)
-    results['repNN3Opt_cost'][i] = tsp.hamiltonian_cost """
+    results['repNN3Opt_time'][i] = tsp.NN3Opt(G, True)
+    results['repNN3Opt_cost'][i] = tsp.hamiltonian_cost
     # Perform repNN + 3Opt + DLB algorithm
     results['repNN3OptDLB_time'][i] = tsp.NN3Opt(G, True, True)
     results['repNN3OptDLB_cost'][i] = tsp.hamiltonian_cost
